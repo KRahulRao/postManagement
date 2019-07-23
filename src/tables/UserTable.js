@@ -4,8 +4,10 @@ const UserTable = props => (
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Username</th>
+        <th>UserId</th>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Body</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -13,8 +15,10 @@ const UserTable = props => (
       {props.users.length > 0 ? (
         props.users.map(user => (
           <tr key={user.id}>
-            <td>{user.name}</td>
-            <td>{user.username}</td>
+            <td>{user.id}</td>
+            <td>{user.userId}</td>
+            <td>{user.title}</td>
+            <td>{user.body}</td>
             <td>
               <button
                 onClick={() => {
@@ -25,7 +29,7 @@ const UserTable = props => (
                 Edit
               </button>
               <button
-                onClick={() => props.deleteUser(user.id)}
+                onClick={() => props.deleteUser(user.userId,user.body,user.title,user.id)}
                 className="button muted-button"
               >
                 Delete

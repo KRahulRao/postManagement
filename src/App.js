@@ -1,22 +1,36 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import AddUserForm from './forms/AddUserForm'
 import EditUserForm from './forms/EditUserForm'
 import UserTable from './tables/UserTable'
 
 const App = () => {
-	// Data
-	const usersData = [
-		{ id: 1, name: 'Tania', username: 'floppydiskette' },
-		{ id: 2, name: 'Craig', username: 'siliconeidolon' },
-		{ id: 3, name: 'Ben', username: 'benisphere' },
-	]
 
-	const initialFormState = { id: null, name: '', username: '' }
+	// Data
+
+	const [usersData,setData] = useState({});
+
+	useEffect(()=>{
+
+		async function fetchData() {
+			const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+			res
+			  .json()
+			  .then(res => setData(res))
+			  .catch(err => setData(err));
+		  }
+		
+		  fetchData();
+
+	});
+
+
+	const initialFormState = { userId: null, id: null, title: '', body: '' }
 
 	// Setting state
 	const [ users, setUsers ] = useState(usersData)
 	const [ currentUser, setCurrentUser ] = useState(initialFormState)
 	const [ editing, setEditing ] = useState(false)
+
 
 	// CRUD operations
 	const addUser = user => {
@@ -24,14 +38,34 @@ const App = () => {
 		setUsers([ ...users, user ])
 	}
 
-	const deleteUser = id => {
+	const deleteUser = (userId,title,body,id) => {
 		setEditing(false)
+		console.log(userId,title,body);
+        let queryString = 'https://jsonplaceholder.typicode.com/posts/' + id;
+		fetch(queryString, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ title: title,
+			body: body,
+			userId: userId })
+		})
+			.then(res => console.log(res));
 
 		setUsers(users.filter(user => user.id !== id))
 	}
 
-	const updateUser = (id, updatedUser) => {
+	const updateUser = (userId,title,body,id) => {
 		setEditing(false)
+		let queryString = 'https://jsonplaceholder.typicode.com/posts/' + id;
+		fetch(queryString, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ title: title,
+			body:  body,
+			userId: userId })
+		})
+			.then(res => res.text()) // OR res.json()
+			.then(res => console.log(res));
 
 		setUsers(users.map(user => (user.id === id ? updatedUser : user)))
 	}
@@ -57,16 +91,11 @@ const App = () => {
 								updateUser={updateUser}
 							/>
 						</Fragment>
-					) : (
-						<Fragment>
-							<h2>Add user</h2>
-							<AddUserForm addUser={addUser} />
-						</Fragment>
-					)}
+					) : null }
 				</div>
 				<div className="flex-large">
 					<h2>View users</h2>
-					<UserTable users={users} editRow={editRow} deleteUser={deleteUser} />
+					<UserTable users={usersData} editRow={editRow} deleteUser={deleteUser} />
 				</div>
 			</div>
 		</div>
